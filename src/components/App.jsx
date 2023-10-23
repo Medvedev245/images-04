@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { Searchbar } from './Searchbar/Searchbar';
 import { Container } from './App.styled';
@@ -8,79 +8,57 @@ import { Loader } from './Loader/Loader';
 import { notifyInputQuerry, success } from './Notify/Notify';
 import { Gallery } from './ImageGallery/ImageGallery';
 
-export class App extends Component {
-  state = {
-    query: '',
-    images: [],
-    page: 1,
-    loading: false,
-    isEmpty: true,
-    showBtn: false,
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(true);
+  const [showBtn, setShowBtn] = useState(false);
+
+  useEffect(() => {
+    if (query === '') return;
+
+    const loadResult = async () => {
+      try {
+        setLoading(true);
+        const img = await fetchImages(query, page);
+        setImages(prevState => [...prevState, ...img.hits]);
+        setShowBtn(page < Math.ceil(img.totalHits / 12));
+        success(query);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadResult();
+  }, [page, query]);
+
+  const handleLoadMore = async () => {
+    setPage(page + 1);
   };
 
-  componentDidUpdate = async (prevProps, prevState) => {
-    const prevQuery = prevState.query;
-    const searchQuery = this.state.query;
-    const prevPage = prevState.page;
-    const nexPage = this.state.page;
-
-    if (prevQuery !== searchQuery || prevPage !== nexPage) {
-      this.loadResult();
-    }
-  };
-
-  loadResult = async () => {
-    const { query, page } = this.state;
-
-    try {
-      this.setState({ loading: true });
-      const img = await fetchImages(query, page);
-
-      this.setState(prevState => ({
-        images: [...prevState.images, ...img.hits],
-        showBtn: this.state.page < Math.ceil(img.totalHits / 12),
-      }));
-
-      success(query);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      this.setState({ loading: false });
-    }
-  };
-
-  handleLoadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
-  };
-
-  handleSubmit = evt => {
+  const handleSubmit = evt => {
     if (evt.query === '') {
       notifyInputQuerry();
 
       return;
     }
-    this.setState({
-      query: evt.query,
-      images: [],
-      page: 1,
-      isEmpty: false,
-    });
+    setQuery(evt.query);
+    setImages([]);
+    setPage(1);
+    setIsEmpty(false);
   };
 
-  render() {
-    const { loading, images, isEmpty, showBtn } = this.state;
-    return (
-      <Container>
-        <Searchbar onSubmit={this.handleSubmit} />
-        {loading && <Loader />}
-        {!isEmpty && <Gallery imgItems={images} />}
-        {showBtn && (
-          <Pagination onClick={this.handleLoadMore}>Load More</Pagination>
-        )}
-        <Toaster position="top-center" reverseOrder={true} />
-      </Container>
-    );
-  }
-}
+  return (
+    <Container>
+      <Searchbar onSubmit={handleSubmit} />
+      {loading && <Loader />}
+      {!isEmpty && <Gallery imgItems={images} />}
+      {showBtn && <Pagination onClick={handleLoadMore}>Load More</Pagination>}
+      <Toaster position="top-center" reverseOrder={true} />
+    </Container>
+  );
+};
