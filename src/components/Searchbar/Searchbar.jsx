@@ -1,6 +1,6 @@
-import { Formik, Field, Form } from 'formik';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { Search } from './Searchbar.styled';
+import { MyForm, Search, MyField, MyLabel } from './Searchbar.styled';
 
 const nameSchema = Yup.object().shape({
   query: Yup.string()
@@ -22,12 +22,12 @@ export const Searchbar = props => {
           actions.resetForm();
         }}
       >
-        <Form>
-          <label htmlFor="query">Image</label>
-          <Field id="query" name="query" placeholder="Enter Image" />
+        <MyForm>
+          <MyLabel htmlFor="query">Image</MyLabel>
+          <MyField id="query" name="query" placeholder="Enter Image" />
 
           <button type="submit">Submit</button>
-        </Form>
+        </MyForm>
       </Formik>
     </Search>
   );
