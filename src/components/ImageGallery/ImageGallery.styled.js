@@ -21,5 +21,7 @@ export const ImageGalleryItem = styled.li`
 `;
 
 export const MainWrap = styled.div`
+  /* height: 100%; */
+  /* background-color: pink; */
   margin-bottom: 20px;
 `;

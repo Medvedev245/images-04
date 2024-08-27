@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 
 export const Container = styled.div`
-  background-color: pink;
+  /* background-color: pink; */
   display: grid;
   grid-template-columns: 1fr;
-  padding-bottom: 24px;
+  /* height: 100vh; */
+  /* padding-bottom: 24px; */
 `;
